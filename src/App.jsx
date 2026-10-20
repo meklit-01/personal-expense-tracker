@@ -5,6 +5,7 @@ import Transaction from "./pages/Transaction"
 import Budgets from "./pages/Budgets"
 import Reports from "./pages/Reports"
 import NotFound from "./pages/NotFound"
+import TransactionDetails from "./pages/TransactionDetails"
 
 function App() {
   
@@ -19,6 +20,7 @@ function App() {
         />
         <Route path="budgets" element={<Budgets />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="transactions/:id"element={<TransactionDetails />}/>
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
