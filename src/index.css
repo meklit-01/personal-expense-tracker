@@ -783,3 +783,84 @@ a {
 }
 
 
+/* Add Transaction Form */
+.add-transaction-form {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+  max-width: 600px;
+  margin: 24px 0;
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.add-transaction-form h2 {
+  margin: 0 0 4px;
+  color: #111111;
+  font-size: 1.4rem;
+}
+
+.add-transaction-form label {
+  display: grid;
+  gap: 8px;
+  color: #222222;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.add-transaction-form input,
+.add-transaction-form select {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111111;
+  font: inherit;
+}
+
+.add-transaction-form input:focus,
+.add-transaction-form select:focus {
+  outline: 2px solid #111111;
+  outline-offset: 2px;
+  border-color: #111111;
+}
+
+.add-transaction-form .primary-button {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #111111;
+  border-radius: 8px;
+  background: #111111;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.add-transaction-form .primary-button:hover {
+  background: #333333;
+}
+
+.add-transaction-form .primary-button:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 3px;
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+  .add-transaction-form {
+    padding: 18px;
+    gap: 16px;
+  }
+
+  .add-transaction-form h2 {
+    font-size: 1.2rem;
+  }
+}
+
