@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const initialBudgets = [
   { id: 1, category: "Food", limit: 4000, spent: 1730 },
@@ -16,7 +16,22 @@ const formatMoney = (amount) =>
   }).format(amount);
 
 export default function Budgets() {
-  const [budgets] = useState(initialBudgets);
+  const [budgets, setBudgets] = useState(() => {
+  try {
+    const savedBudgets = localStorage.getItem("expense-tracker-budgets");
+
+    return savedBudgets ? JSON.parse(savedBudgets) : initialBudgets;
+  } catch {
+    return initialBudgets;
+  }
+});
+
+useEffect(() => {
+  localStorage.setItem(
+    "expense-tracker-budgets",
+    JSON.stringify(budgets)
+  );
+}, [budgets]);
 
   const totalBudget = budgets.reduce(
     (sum, budget) => sum + budget.limit,
