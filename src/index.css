@@ -864,3 +864,105 @@ a {
   }
 }
 
+/* Budgets page */
+.budgets-page {
+  display: grid;
+  gap: 24px;
+}
+
+.page-heading h2 {
+  margin: 4px 0 8px;
+}
+
+.budget-summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.budget-summary-card,
+.budget-card {
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+}
+
+.budget-summary-card p {
+  margin: 0 0 10px;
+  color: #666666;
+  font-size: 0.9rem;
+}
+
+.budget-summary-card h3 {
+  margin: 0;
+  color: #111111;
+  font-size: 1.35rem;
+}
+
+.budget-list {
+  display: grid;
+  gap: 16px;
+}
+
+.budget-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.budget-card-heading h3 {
+  margin: 0 0 6px;
+  color: #111111;
+}
+
+.budget-card-heading p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.budget-card-heading strong {
+  color: #111111;
+}
+
+.budget-progress-track {
+  height: 10px;
+  overflow: hidden;
+  background: #eeeeee;
+  border-radius: 999px;
+}
+
+.budget-progress-fill {
+  height: 100%;
+  background: #111111;
+  border-radius: inherit;
+}
+
+.budget-progress-fill.over-budget {
+  background: #b42318;
+}
+
+.budget-status {
+  margin: 12px 0 0;
+  color: #555555;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 600px) {
+  .budget-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .budget-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .budget-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
