@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import AddTransactionForm from "../components/AddTransaction";
 
@@ -71,7 +71,29 @@ function Transaction() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
-  const [transactions, setTransactions] = useState(sampleTransactions);
+  
+const [transactions, setTransactions] = useState(() => {
+  try {
+    const savedTransactions = localStorage.getItem(
+      "expense-tracker-transactions"
+    );
+
+    return savedTransactions
+      ? JSON.parse(savedTransactions)
+      : sampleTransactions;
+  } catch {
+    return sampleTransactions;
+  }
+});
+
+useEffect(() => {
+  localStorage.setItem(
+    "expense-tracker-transactions",
+    JSON.stringify(transactions)
+  );
+}, [transactions]);
+
+
 
   const filteredTransaction = transactions.filter((transaction) => {
     const matchesSearch = transaction.title
