@@ -1,131 +1,207 @@
 
 import { useState, useEffect } from "react";
 
+// Default budgets
 const initialBudgets = [
-  { id: 1, category: "Food", limit: 4000, spent: 1730 },
-  { id: 2, category: "Transport", limit: 1500, spent: 350 },
-  { id: 3, category: "Utilities", limit: 2000, spent: 800 },
-  { id: 4, category: "Entertainment", limit: 1000, spent: 250 },
+  { id: 1, category: "Food", limit: 4000 },
+  { id: 2, category: "Transport", limit: 1500 },
+  { id: 3, category: "Utilities", limit: 2000 },
+  { id: 4, category: "Entertainment", limit: 1000 },
 ];
 
-const formatMoney = (amount) =>
-  new Intl.NumberFormat("en-ET", {
+// Format amounts as Ethiopian Birr
+function formatMoney(amount) {
+  return new Intl.NumberFormat("en-ET", {
     style: "currency",
     currency: "ETB",
     maximumFractionDigits: 2,
   }).format(amount);
+}
 
 export default function Budgets() {
+  // Load budgets saved in the browser
   const [budgets, setBudgets] = useState(() => {
-  try {
-    const savedBudgets = localStorage.getItem("expense-tracker-budgets");
+    try {
+      const savedBudgets = localStorage.getItem(
+        "expense-tracker-budgets"
+      );
 
-    return savedBudgets ? JSON.parse(savedBudgets) : initialBudgets;
-  } catch {
-    return initialBudgets;
-  }
-});
+      return savedBudgets
+        ? JSON.parse(savedBudgets)
+        : initialBudgets;
+    } catch {
+      return initialBudgets;
+    }
+  });
 
-useEffect(() => {
-  localStorage.setItem(
-    "expense-tracker-budgets",
-    JSON.stringify(budgets)
-  );
-}, [budgets]);
+  // Load transactions saved by the Transactions page
+  const [transactions, setTransactions] = useState(() => {
+    try {
+      const savedTransactions = localStorage.getItem(
+        "expense-tracker-transactions"
+      );
 
+      return savedTransactions
+        ? JSON.parse(savedTransactions)
+        : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Save budgets whenever they change
+  useEffect(() => {
+    localStorage.setItem(
+      "expense-tracker-budgets",
+      JSON.stringify(budgets)
+    );
+  }, [budgets]);
+
+  // Refresh transactions when returning to this page
+  useEffect(() => {
+    function loadTransactions() {
+      try {
+        const savedTransactions = localStorage.getItem(
+          "expense-tracker-transactions"
+        );
+
+        setTransactions(
+          savedTransactions ? JSON.parse(savedTransactions) : []
+        );
+      } catch {
+        setTransactions([]);
+      }
+    }
+
+    window.addEventListener("focus", loadTransactions);
+    window.addEventListener("storage", loadTransactions);
+
+    return () => {
+      window.removeEventListener("focus", loadTransactions);
+      window.removeEventListener("storage", loadTransactions);
+    };
+  }, []);
+
+  // Calculate total budget
   const totalBudget = budgets.reduce(
-    (sum, budget) => sum + budget.limit,
+    (sum, budget) => sum + Number(budget.limit || 0),
     0
   );
 
-  const totalSpent = budgets.reduce(
-    (sum, budget) => sum + budget.spent,
+  // Keep only expense transactions
+  const expenseTransactions = transactions.filter(
+    (transaction) => transaction.type === "expense"
+  );
+
+  // Calculate total expenses
+  const totalSpent = expenseTransactions.reduce(
+    (sum, transaction) => sum + Number(transaction.amount || 0),
     0
   );
+
+  // Calculate remaining budget
+  const remainingBudget = totalBudget - totalSpent;
 
   return (
-    <section className="budgets-page">
+    <main className="budgets-page">
       <div className="page-heading">
-        <p className="eyebrow">PLAN YOUR MONEY</p>
-        <h2>Budgets</h2>
-        <p className="muted">
-          Set spending limits and keep track of your expenses.
-        </p>
+        <div>
+          <h1>Budgets</h1>
+          <p>Track your spending against your monthly budgets.</p>
+        </div>
       </div>
 
-      <div className="budget-summary">
-        <article className="budget-summary-card">
-          <p>Total budget</p>
-          <h3>{formatMoney(totalBudget)}</h3>
-        </article>
+      {/* Summary cards */}
+      <section className="budget-summary">
+        <div className="budget-summary-card">
+          <p>Total Budget</p>
+          <h2>{formatMoney(totalBudget)}</h2>
+        </div>
 
-        <article className="budget-summary-card">
-          <p>Total spent</p>
-          <h3>{formatMoney(totalSpent)}</h3>
-        </article>
+        <div className="budget-summary-card">
+          <p>Total Spent</p>
+          <h2>{formatMoney(totalSpent)}</h2>
+        </div>
 
-        <article className="budget-summary-card">
-          <p>Remaining</p>
-          <h3>{formatMoney(totalBudget - totalSpent)}</h3>
-        </article>
-      </div>
+        <div className="budget-summary-card">
+          <p>Remaining Budget</p>
+          <h2>{formatMoney(remainingBudget)}</h2>
+        </div>
+      </section>
 
-      <div className="budget-list">
+      {/* Individual category budgets */}
+      <section className="budget-list">
+        <h2>Budget by Category</h2>
+
         {budgets.map((budget) => {
-          const percentage = Math.min(
-            (budget.spent / budget.limit) * 100,
-            100
-          );
+          // Find expenses matching this budget category
+          const spent = expenseTransactions
+            .filter(
+              (transaction) =>
+                String(transaction.category || "").toLowerCase() ===
+                budget.category.toLowerCase()
+            )
+            .reduce(
+              (sum, transaction) =>
+                sum + Number(transaction.amount || 0),
+              0
+            );
 
-          const isOverBudget = budget.spent > budget.limit;
+          const percentage =
+            Number(budget.limit) > 0
+              ? (spent / Number(budget.limit)) * 100
+              : 0;
+
+          const progress = Math.min(percentage, 100);
+          const isOverBudget = spent > Number(budget.limit);
 
           return (
             <article className="budget-card" key={budget.id}>
               <div className="budget-card-heading">
                 <div>
                   <h3>{budget.category}</h3>
-                  <p className="muted">
-                    {formatMoney(budget.spent)} of{" "}
-                    {formatMoney(budget.limit)}
+                  <p>
+                    {formatMoney(spent)} of{" "}
+                    {formatMoney(Number(budget.limit))}
                   </p>
                 </div>
 
-                <strong>{Math.round(
-                  (budget.spent / budget.limit) * 100
-                )}%</strong>
+                <span
+                  className={
+                    isOverBudget
+                      ? "budget-status over-budget"
+                      : "budget-status"
+                  }
+                >
+                  {isOverBudget
+                    ? "Over budget"
+                    : `${Math.round(percentage)}% used`}
+                </span>
               </div>
 
               <div
                 className="budget-progress-track"
                 role="progressbar"
-                aria-label={`${budget.category} budget used`}
+                aria-label={`${budget.category} budget usage`}
+                aria-valuenow={Math.round(progress)}
                 aria-valuemin={0}
                 aria-valuemax={100}
-                aria-valuenow={Math.round(
-                  (budget.spent / budget.limit) * 100
-                )}
               >
                 <div
-                  className={`budget-progress-fill ${
-                    isOverBudget ? "over-budget" : ""
-                  }`}
-                  style={{ width: `${percentage}%` }}
+                  className="budget-progress-fill"
+                  style={{ width: `${progress}%` }}
                 />
               </div>
 
-              <p className="budget-status">
+              <p className="budget-remaining">
                 {isOverBudget
-                  ? `Over budget by ${formatMoney(
-                      budget.spent - budget.limit
-                    )}`
-                  : `${formatMoney(
-                      budget.limit - budget.spent
-                    )} remaining`}
+                  ? `${formatMoney(spent - Number(budget.limit))} over budget`
+                  : `${formatMoney(Number(budget.limit) - spent)} remaining`}
               </p>
             </article>
           );
         })}
-      </div>
-    </section>
+      </section>
+    </main>
   );
 }
